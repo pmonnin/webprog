@@ -115,4 +115,5 @@ class BlogPermalinkJSON(BaseHandler):
 
 class BlogCacheFlush(BaseHandler):
     def get(self):
-        pass
+        memcache.flush_all()
+        self.redirect('/')
