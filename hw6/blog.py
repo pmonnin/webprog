@@ -15,16 +15,39 @@ def get_posts(update=False):
     if update or not memcache.get('posts'):
         posts = db.GqlQuery("SELECT * FROM BlogEntry ORDER BY created DESC LIMIT 10")
         memcache.set('posts', posts)
-        memcache.set('cache-time', time.time())
+        memcache.set('cache-time', str(time.time()))
         dic = dict()
         dic['posts'] = posts
-        dic['cacheDelay'] = int(float(time.time()) - float(memcache.get('cache-time')))
+        dic['cacheDelay'] = int(time.time() - float(memcache.get('cache-time')))
         return dic
 
     else:
         dic = dict()
         dic['posts'] = memcache.get('posts')
-        dic['cacheDelay'] = int(float(time.time()) - float(memcache.get('cache-time')))
+        dic['cacheDelay'] = int(time.time() - float(memcache.get('cache-time')))
+        return dic
+
+
+def get_post(post_id, update=False):
+    if update or not memcache.get(post_id):
+        post = BlogEntry.get_by_id(int(post_id))
+        if post:
+            memcache.set(str(post_id), post)
+            memcache.set('cacheDelay' + str(post_id), time.time())
+            dic = dict()
+            dic['title'] = post.title
+            dic['text'] = post.text
+            dic['cacheDelay'] = int(time.time() - float(memcache.get('cacheDelay' + str(post_id))))
+            return dic
+        else:
+            return None
+
+    else:
+        post = memcache.get(str(post_id))
+        dic = dict()
+        dic['title'] = post.title
+        dic['text'] = post.text
+        dic['cacheDelay'] = int(time.time() - float(memcache.get('cacheDelay' + str(post_id))))
         return dic
 
 
@@ -60,6 +83,7 @@ class BlogNewEntry(BaseHandler):
             post = BlogEntry(title=title, text=content)
             post.put()
             get_posts(True)
+            get_post(post.key().id(), True)
             self.redirect('/' + str(post.key().id()))
         else:
             error = "You have to give a title AND a text for a new post!"
@@ -68,10 +92,10 @@ class BlogNewEntry(BaseHandler):
 
 class BlogPermalink(BaseHandler):
     def get(self, post_id):
-        article = BlogEntry.get_by_id(int(post_id))
+        article = get_post(post_id)
 
         if article:
-            self.render("post.html", title=article.title, text=article.text)
+            self.render("post.html", **article)
         else:
             self.render("post.html", title="Not found", errormessage="Article not found... Sorry!")
 
@@ -87,3 +111,8 @@ class BlogPermalinkJSON(BaseHandler):
             self.response.out.write(json.dumps(json_content))
         else:
             self.error(404)
+
+
+class BlogCacheFlush(BaseHandler):
+    def get(self):
+        pass

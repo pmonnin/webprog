@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="utf-8" />
 		<title>Pierre's blog</title>
-		<link rel="stylesheet" href="main.css" />
+		<link rel="stylesheet" href="stylesheets/main.css" />
 	</head>
 	
 	<body>
@@ -12,13 +12,13 @@
 
         {% for post in posts %}
         <div class="article">
-            <h2>{{post.title}}</h2>
+            <h2><a href="{{post.key().id()}}">{{post.title}}</a></h2>
             <pre>{{post.text}}</pre>
         </div>
         {% endfor %}
 
-        <p id="query_info">
-            Queried {{cacheDelay}} seconds ago.
+        <p class="query_info">
+            queried {{cacheDelay}} seconds ago.
         </p>
 	</body>
 </html>

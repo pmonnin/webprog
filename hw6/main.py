@@ -17,7 +17,6 @@
 from signing import *
 from blog import *
 
-
 app = webapp2.WSGIApplication([
                                   ('/', BlogFrontView),
                                   ('/.json', BlogFrontViewJSON),
@@ -28,4 +27,5 @@ app = webapp2.WSGIApplication([
                                   ('/welcome', WelcomeHandler),
                                   ('/login', LoginHandler),
                                   ('/logout', LogoutHandler)
+                                  ('/flush', BlogCacheFlush)
                               ], debug=True)
