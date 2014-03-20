@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Pierre's blog</title>
+		<link rel="stylesheet" href="main.css" />
+	</head>
+	
+	<body>
+        <h1>Here, you can see my articles!</h1>
+        <p>Have fun reading them :)</p>
+
+        {% for post in posts %}
+        <div class="article">
+            <h2>{{post.title}}</h2>
+            <pre>{{post.text}}</pre>
+        </div>
+        {% endfor %}
+
+        <p id="query_info">
+            Queried {{cacheDelay}} seconds ago.
+        </p>
+	</body>
+</html>
